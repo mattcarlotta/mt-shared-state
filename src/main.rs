@@ -15,9 +15,9 @@ fn main() {
     let scheduler = scheduler::Scheduler::new();
 
     let c = Arc::new(Mutex::new(0_u32));
-    let counter = Arc::clone(&c);
 
     for stream in listener.incoming() {
+        let counter = Arc::clone(&c);
         match stream {
             Ok(stream) => scheduler.create(|| {
                 handle_request(stream, counter);
