@@ -14,7 +14,7 @@ fn main() {
     let listener = TcpListener::bind(host).unwrap();
     let scheduler = scheduler::Scheduler::new();
 
-    let c = Arc::new(Mutex::new(0));
+    let c = Arc::new(Mutex::new(0_u32));
     let counter = Arc::clone(&c);
 
     for stream in listener.incoming() {
@@ -22,9 +22,12 @@ fn main() {
             Ok(stream) => scheduler.create(|| {
                 handle_request(stream, counter);
             }),
-            Err(e) => println!("Unable to handle request: {}", e),
+            Err(err) => println!("Unable to handle request: {}", err),
         }
     }
+
+    let hit_counter = c.lock().unwrap();
+    println!("Route was hit a total of: {} times", hit_counter);
 }
 
 pub fn handle_request(mut stream: TcpStream, counter: Arc<Mutex<u32>>) {
